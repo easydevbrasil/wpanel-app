@@ -19,17 +19,17 @@ import { type Plan } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 const colorPalettes = [
+  { id: "platinum", from: "slate-400", to: "gray-600", label: "Platinum", gradient: "linear-gradient(to right, #94a3b8, #4b5563)" },
+  { id: "gold", from: "yellow-400", to: "orange-500", label: "Gold", gradient: "linear-gradient(to right, #facc15, #f97316)" },
+  { id: "bronze", from: "orange-600", to: "amber-700", label: "Bronze", gradient: "linear-gradient(to right, #ea580c, #b45309)" },
   { id: "blue-purple", from: "blue-500", to: "purple-600", label: "Azul/Roxo", gradient: "linear-gradient(to right, #3b82f6, #9333ea)" },
   { id: "green-teal", from: "green-500", to: "teal-600", label: "Verde/Turquesa", gradient: "linear-gradient(to right, #22c55e, #0d9488)" },
   { id: "orange-red", from: "orange-500", to: "red-600", label: "Laranja/Vermelho", gradient: "linear-gradient(to right, #f97316, #dc2626)" },
   { id: "pink-rose", from: "pink-500", to: "rose-600", label: "Rosa/Rosa Escuro", gradient: "linear-gradient(to right, #ec4899, #e11d48)" },
   { id: "indigo-blue", from: "indigo-500", to: "blue-600", label: "Índigo/Azul", gradient: "linear-gradient(to right, #6366f1, #2563eb)" },
-  { id: "yellow-orange", from: "yellow-500", to: "orange-600", label: "Amarelo/Laranja", gradient: "linear-gradient(to right, #eab308, #ea580c)" },
   { id: "cyan-blue", from: "cyan-500", to: "blue-600", label: "Ciano/Azul", gradient: "linear-gradient(to right, #06b6d4, #2563eb)" },
   { id: "purple-pink", from: "purple-500", to: "pink-600", label: "Roxo/Rosa", gradient: "linear-gradient(to right, #a855f7, #db2777)" },
-  { id: "slate-gray", from: "slate-600", to: "gray-700", label: "Ardósia/Cinza", gradient: "linear-gradient(to right, #475569, #374151)" },
   { id: "emerald-green", from: "emerald-500", to: "green-600", label: "Esmeralda/Verde", gradient: "linear-gradient(to right, #10b981, #16a34a)" },
-  { id: "amber-orange", from: "amber-500", to: "orange-600", label: "Âmbar/Laranja", gradient: "linear-gradient(to right, #f59e0b, #ea580c)" },
   { id: "violet-purple", from: "violet-500", to: "purple-600", label: "Violeta/Roxo", gradient: "linear-gradient(to right, #8b5cf6, #9333ea)" },
 ];
 

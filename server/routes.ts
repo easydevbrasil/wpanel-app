@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { storage } from "./storage";
@@ -6,8 +6,85 @@ import { insertPlanSchema, insertSaleSchema } from "@shared/schema";
 import * as si from "systeminformation";
 import { exec } from "child_process";
 import { promisify } from "util";
+import { z } from "zod";
 
 const execAsync = promisify(exec);
+
+function createResourceRoutes<T>(
+  app: Express,
+  path: string,
+  resourceName: string,
+  schema: z.AnyZodObject,
+  storage: {
+    getAll: () => Promise<T[]>;
+    getById: (id: string) => Promise<T | null>;
+    create: (data: any) => Promise<T>;
+    update: (id: string, data: any) => Promise<T | null>;
+    delete: (id: string) => Promise<boolean>;
+  }
+) {
+  app.get(`/api/${path}`, async (req: Request, res: Response) => {
+    try {
+      const items = await storage.getAll();
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: `Failed to fetch ${resourceName}s` });
+    }
+  });
+
+  app.get(`/api/${path}/:id`, async (req: Request, res: Response) => {
+    try {
+      const item = await storage.getById(req.params.id);
+      if (!item) {
+        return res.status(404).json({ error: `${resourceName} not found` });
+      }
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ error: `Failed to fetch ${resourceName}` });
+    }
+  });
+
+  app.post(`/api/${path}`, async (req: Request, res: Response) => {
+    try {
+      const validatedData = schema.parse(req.body);
+      const item = await storage.create(validatedData);
+      res.status(201).json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: `Invalid ${resourceName} data`, details: error });
+      }
+      res.status(500).json({ error: `Failed to create ${resourceName}` });
+    }
+  });
+
+  app.patch(`/api/${path}/:id`, async (req: Request, res: Response) => {
+    try {
+      const validatedData = schema.partial().parse(req.body);
+      const item = await storage.update(req.params.id, validatedData);
+      if (!item) {
+        return res.status(404).json({ error: `${resourceName} not found` });
+      }
+      res.json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: `Invalid ${resourceName} data`, details: error });
+      }
+      res.status(500).json({ error: `Failed to update ${resourceName}` });
+    }
+  });
+
+  app.delete(`/api/${path}/:id`, async (req: Request, res: Response) => {
+    try {
+      const success = await storage.delete(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: `${resourceName} not found` });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: `Failed to delete ${resourceName}` });
+    }
+  });
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/login", (req, res) => {
@@ -68,128 +145,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/plans", async (req, res) => {
-    try {
-      const plans = await storage.getPlans();
-      res.json(plans);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch plans" });
-    }
+  createResourceRoutes(app, "plans", "plan", insertPlanSchema, {
+    getAll: () => storage.getPlans(),
+    getById: (id) => storage.getPlan(id),
+    create: (data) => storage.createPlan(data),
+    update: (id, data) => storage.updatePlan(id, data),
+    delete: (id) => storage.deletePlan(id),
   });
 
-  app.get("/api/plans/:id", async (req, res) => {
-    try {
-      const plan = await storage.getPlan(req.params.id);
-      if (!plan) {
-        return res.status(404).json({ error: "Plan not found" });
-      }
-      res.json(plan);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch plan" });
-    }
-  });
-
-  app.post("/api/plans", async (req, res) => {
-    try {
-      const validatedData = insertPlanSchema.parse(req.body);
-      const plan = await storage.createPlan(validatedData);
-      res.status(201).json(plan);
-    } catch (error) {
-      if (error instanceof Error && error.name === "ZodError") {
-        return res.status(400).json({ error: "Invalid plan data", details: error });
-      }
-      res.status(500).json({ error: "Failed to create plan" });
-    }
-  });
-
-  app.patch("/api/plans/:id", async (req, res) => {
-    try {
-      const validatedData = insertPlanSchema.partial().parse(req.body);
-      const plan = await storage.updatePlan(req.params.id, validatedData);
-      if (!plan) {
-        return res.status(404).json({ error: "Plan not found" });
-      }
-      res.json(plan);
-    } catch (error) {
-      if (error instanceof Error && error.name === "ZodError") {
-        return res.status(400).json({ error: "Invalid plan data", details: error });
-      }
-      res.status(500).json({ error: "Failed to update plan" });
-    }
-  });
-
-  app.delete("/api/plans/:id", async (req, res) => {
-    try {
-      const success = await storage.deletePlan(req.params.id);
-      if (!success) {
-        return res.status(404).json({ error: "Plan not found" });
-      }
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete plan" });
-    }
-  });
-
-  app.get("/api/sales", async (req, res) => {
-    try {
-      const sales = await storage.getSales();
-      res.json(sales);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch sales" });
-    }
-  });
-
-  app.get("/api/sales/:id", async (req, res) => {
-    try {
-      const sale = await storage.getSale(req.params.id);
-      if (!sale) {
-        return res.status(404).json({ error: "Sale not found" });
-      }
-      res.json(sale);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch sale" });
-    }
-  });
-
-  app.post("/api/sales", async (req, res) => {
-    try {
-      const validatedData = insertSaleSchema.parse(req.body);
-      const sale = await storage.createSale(validatedData);
-      res.status(201).json(sale);
-    } catch (error) {
-      if (error instanceof Error && error.name === "ZodError") {
-        return res.status(400).json({ error: "Invalid sale data", details: error });
-      }
-      res.status(500).json({ error: "Failed to create sale" });
-    }
-  });
-
-  app.patch("/api/sales/:id", async (req, res) => {
-    try {
-      const validatedData = insertSaleSchema.partial().parse(req.body);
-      const sale = await storage.updateSale(req.params.id, validatedData);
-      if (!sale) {
-        return res.status(404).json({ error: "Sale not found" });
-      }
-      res.json(sale);
-    } catch (error) {
-      if (error instanceof Error && error.name === "ZodError") {
-        return res.status(400).json({ error: "Invalid sale data", details: error });
-      }
-      res.status(500).json({ error: "Failed to update sale" });
-    }
-  });
-
-  app.delete("/api/sales/:id", async (req, res) => {
-    try {
-      const success = await storage.deleteSale(req.params.id);
-      if (!success) {
-        return res.status(404).json({ error: "Sale not found" });
-      }
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete sale" });
-    }
+  createResourceRoutes(app, "sales", "sale", insertSaleSchema, {
+    getAll: () => storage.getSales(),
+    getById: (id) => storage.getSale(id),
+    create: (data) => storage.createSale(data),
+    update: (id, data) => storage.updateSale(id, data),
+    delete: (id) => storage.deleteSale(id),
   });
 
   const httpServer = createServer(app);
