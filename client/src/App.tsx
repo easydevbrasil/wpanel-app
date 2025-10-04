@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import LoginPage from "@/pages/login";
@@ -43,7 +42,6 @@ function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
             <span className="text-lg font-bold text-white">W</span>
           </div>
         </div>
-        <ThemeToggle />
       </header>
       
       <div className="flex flex-1 overflow-hidden">
@@ -126,7 +124,7 @@ function Router() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="dark">
         <AuthProvider>
           <TooltipProvider>
             <Router />
