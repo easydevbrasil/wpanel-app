@@ -1,4 +1,4 @@
-import { Switch, Route, Redirect } from "wouter";
+import { Switch, Route, Redirect, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -7,13 +7,14 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AppSidebar } from "@/components/app-sidebar";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import LoginPage from "@/pages/login";
 import DashboardPage from "@/pages/dashboard";
 import ClientesPage from "@/pages/clientes";
 import FornecedoresPage from "@/pages/fornecedores";
 import NotFound from "@/pages/not-found";
-import { useState } from "react";
-import { Menu } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -58,25 +59,56 @@ function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const [location, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      setLocation("/login");
+    }
+  }, [isAuthenticated, isLoading, setLocation]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return <>{children}</>;
+}
+
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={() => <Redirect to="/login" />} />
+      <Route path="/" component={() => <Redirect to="/dashboard" />} />
       <Route path="/login" component={LoginPage} />
       <Route path="/dashboard">
-        <AuthenticatedLayout>
-          <DashboardPage />
-        </AuthenticatedLayout>
+        <ProtectedRoute>
+          <AuthenticatedLayout>
+            <DashboardPage />
+          </AuthenticatedLayout>
+        </ProtectedRoute>
       </Route>
       <Route path="/clientes">
-        <AuthenticatedLayout>
-          <ClientesPage />
-        </AuthenticatedLayout>
+        <ProtectedRoute>
+          <AuthenticatedLayout>
+            <ClientesPage />
+          </AuthenticatedLayout>
+        </ProtectedRoute>
       </Route>
       <Route path="/fornecedores">
-        <AuthenticatedLayout>
-          <FornecedoresPage />
-        </AuthenticatedLayout>
+        <ProtectedRoute>
+          <AuthenticatedLayout>
+            <FornecedoresPage />
+          </AuthenticatedLayout>
+        </ProtectedRoute>
       </Route>
       <Route component={NotFound} />
     </Switch>
@@ -87,10 +119,12 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
-        <TooltipProvider>
-          <Router />
-          <Toaster />
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Router />
+            <Toaster />
+          </TooltipProvider>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

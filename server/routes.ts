@@ -9,11 +9,35 @@ import { promisify } from "util";
 const execAsync = promisify(exec);
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  app.post("/api/login", (req, res) => {
+    const { username, password } = req.body;
+    
+    if (username === "admin" && password === "admin123") {
+      req.session.userId = "admin";
+      req.session.username = username;
+      res.json({ success: true, user: { username } });
+    } else {
+      res.status(401).json({ success: false, message: "Credenciais inválidas" });
+    }
+  });
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  app.post("/api/logout", (req, res) => {
+    req.session.destroy((err: Error | undefined) => {
+      if (err) {
+        res.status(500).json({ success: false, message: "Erro ao fazer logout" });
+      } else {
+        res.json({ success: true });
+      }
+    });
+  });
+
+  app.get("/api/user", (req, res) => {
+    if (req.session.userId) {
+      res.json({ authenticated: true, user: { username: req.session.username } });
+    } else {
+      res.json({ authenticated: false });
+    }
+  });
 
   const httpServer = createServer(app);
   const io = new SocketIOServer(httpServer, {

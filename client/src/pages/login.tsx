@@ -1,42 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { Lock, User } from "lucide-react";
 
 export default function LoginPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { login, isAuthenticated } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setLocation("/dashboard");
+    }
+  }, [isAuthenticated, setLocation]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // TODO: Remove mock login functionality
-    setTimeout(() => {
-      if (username === "admin" && password === "admin123") {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Redirecionando para o dashboard...",
-        });
-        setTimeout(() => {
-          setLocation("/dashboard");
-        }, 500);
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Erro ao fazer login",
-          description: "Usuário ou senha incorretos",
-        });
-        setIsLoading(false);
-      }
-    }, 1000);
+    const result = await login(username, password);
+    
+    if (result.success) {
+      toast({
+        title: "Login realizado com sucesso!",
+        description: "Redirecionando para o dashboard...",
+      });
+      setTimeout(() => {
+        setLocation("/dashboard");
+      }, 500);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Erro ao fazer login",
+        description: result.message || "Usuário ou senha incorretos",
+      });
+      setIsLoading(false);
+    }
   };
 
   return (

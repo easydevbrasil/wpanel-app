@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 const menuItems = [
   {
@@ -37,6 +38,7 @@ const menuItems = [
 export function AppSidebar() {
   const [location] = useLocation();
   const { toggleSidebar, open } = useSidebar();
+  const { logout, user } = useAuth();
 
   return (
     <Sidebar className="border-r bg-gradient-to-b from-blue-600 via-purple-600 to-purple-700 transition-all duration-300 relative">
@@ -99,7 +101,7 @@ export function AppSidebar() {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-            <p className="text-sm font-medium text-white truncate">Admin User</p>
+            <p className="text-sm font-medium text-white truncate">{user?.username || "Admin User"}</p>
             <p className="text-xs text-white/60 truncate">admin@wpanel.com</p>
           </div>
         </div>
@@ -108,7 +110,7 @@ export function AppSidebar() {
           size="sm"
           className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2"
           data-testid="button-logout"
-          onClick={() => console.log("Logout clicked")}
+          onClick={logout}
         >
           <LogOut className="h-4 w-4 group-data-[collapsible=icon]:mr-0 mr-2 flex-shrink-0" />
           <span className="group-data-[collapsible=icon]:hidden">Sair</span>
