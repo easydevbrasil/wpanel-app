@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,6 +32,7 @@ import {
 } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Search, Upload, Grid3x3, TableProperties, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { type Plan } from "@shared/schema";
 
 // TODO: Remove mock data
 const mockClients = [
@@ -75,6 +77,11 @@ export default function ClientesPage() {
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [filterGroup, setFilterGroup] = useState<string>("all");
   const [filterCompany, setFilterCompany] = useState<string>("all");
+  const [selectedPlan, setSelectedPlan] = useState<string>("");
+
+  const { data: plans = [] } = useQuery<Plan[]>({
+    queryKey: ["/api/plans"],
+  });
 
   const handleDelete = (id: string) => {
     setClients(clients.filter((c) => c.id !== id));
@@ -83,6 +90,7 @@ export default function ClientesPage() {
 
   const handleEdit = (client: any) => {
     setEditingClient(client);
+    setSelectedPlan(client.groupName || "");
     setIsDialogOpen(true);
   };
 
@@ -128,7 +136,10 @@ export default function ClientesPage() {
             <Button
               className="bg-gradient-to-r from-blue-600 to-purple-600"
               data-testid="button-add-client"
-              onClick={() => setEditingClient(null)}
+              onClick={() => {
+                setEditingClient(null);
+                setSelectedPlan("");
+              }}
             >
               <Plus className="h-4 w-4 mr-2" />
               Novo Cliente
@@ -176,6 +187,21 @@ export default function ClientesPage() {
               <div className="col-span-2 md:col-span-1 space-y-2">
                 <Label htmlFor="company">Empresa</Label>
                 <Input id="company" placeholder="Nome da empresa" data-testid="input-company" />
+              </div>
+              <div className="col-span-2 md:col-span-1 space-y-2">
+                <Label htmlFor="plan">Plano</Label>
+                <Select value={selectedPlan} onValueChange={setSelectedPlan}>
+                  <SelectTrigger data-testid="select-plan">
+                    <SelectValue placeholder="Selecione um plano" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {plans.map((plan) => (
+                      <SelectItem key={plan.id} value={plan.name.toLowerCase()}>
+                        {plan.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="col-span-2 space-y-2">
                 <Label htmlFor="observations">Observações</Label>

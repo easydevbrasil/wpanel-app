@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Building2, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Users, Building2, CreditCard, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
   Sidebar,
@@ -32,6 +32,11 @@ const menuItems = [
     title: "Fornecedores",
     url: "/fornecedores",
     icon: Building2,
+  },
+  {
+    title: "Planos",
+    url: "/plans",
+    icon: CreditCard,
   },
 ];
 

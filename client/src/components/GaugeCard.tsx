@@ -21,8 +21,8 @@ export function GaugeCard({
   const isUnavailable = maxValue === 0;
   const percentage = isUnavailable ? 0 : (value / maxValue) * 100;
   
-  const startAngle = 220;
-  const endAngle = 320;
+  const startAngle = 180;
+  const endAngle = 360;
   const totalAngle = endAngle - startAngle;
   const currentAngle = startAngle + (percentage / 100) * totalAngle;
   

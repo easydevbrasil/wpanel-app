@@ -12,6 +12,7 @@ import LoginPage from "@/pages/login";
 import DashboardPage from "@/pages/dashboard";
 import ClientesPage from "@/pages/clientes";
 import FornecedoresPage from "@/pages/fornecedores";
+import PlansPage from "@/pages/plans";
 import NotFound from "@/pages/not-found";
 import { useState, useEffect } from "react";
 import { Menu, Loader2 } from "lucide-react";
@@ -107,6 +108,13 @@ function Router() {
         <ProtectedRoute>
           <AuthenticatedLayout>
             <FornecedoresPage />
+          </AuthenticatedLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/plans">
+        <ProtectedRoute>
+          <AuthenticatedLayout>
+            <PlansPage />
           </AuthenticatedLayout>
         </ProtectedRoute>
       </Route>

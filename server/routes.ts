@@ -39,6 +39,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/plans", async (req, res) => {
+    try {
+      const plans = await storage.getPlans();
+      res.json(plans);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch plans" });
+    }
+  });
+
+  app.get("/api/plans/:id", async (req, res) => {
+    try {
+      const plan = await storage.getPlan(req.params.id);
+      if (!plan) {
+        return res.status(404).json({ error: "Plan not found" });
+      }
+      res.json(plan);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch plan" });
+    }
+  });
+
+  app.post("/api/plans", async (req, res) => {
+    try {
+      const plan = await storage.createPlan(req.body);
+      res.status(201).json(plan);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create plan" });
+    }
+  });
+
+  app.patch("/api/plans/:id", async (req, res) => {
+    try {
+      const plan = await storage.updatePlan(req.params.id, req.body);
+      if (!plan) {
+        return res.status(404).json({ error: "Plan not found" });
+      }
+      res.json(plan);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update plan" });
+    }
+  });
+
+  app.delete("/api/plans/:id", async (req, res) => {
+    try {
+      const success = await storage.deletePlan(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Plan not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete plan" });
+    }
+  });
+
   const httpServer = createServer(app);
   const io = new SocketIOServer(httpServer, {
     cors: {
