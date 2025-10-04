@@ -4,6 +4,8 @@ import { GaugeCard } from "@/components/GaugeCard";
 import { Cpu, HardDrive, MemoryStick, Cloud, Server, Monitor } from "lucide-react";
 import { io, Socket } from "socket.io-client";
 import { Card } from "@/components/ui/card";
+import ubuntuIcon from "@assets/ubuntu_icon_1759605426316.png";
+import debianIcon from "@assets/debian_icon_1759605426317.png";
 
 interface MetricData {
   value: number;
@@ -43,11 +45,11 @@ export default function DashboardPage() {
   });
 
   const getOSLogo = () => {
-    if (!systemInfo) return "🖥️";
+    if (!systemInfo) return <Monitor className="h-16 w-16 text-white" />;
     const os = systemInfo.os.toLowerCase();
-    if (os.includes("ubuntu")) return "🟠";
-    if (os.includes("debian")) return "🔴";
-    return "🖥️";
+    if (os.includes("ubuntu")) return <img src={ubuntuIcon} alt="Ubuntu" className="h-16 w-16" />;
+    if (os.includes("debian")) return <img src={debianIcon} alt="Debian" className="h-16 w-16" />;
+    return <Monitor className="h-16 w-16 text-white" />;
   };
 
   useEffect(() => {
@@ -94,7 +96,7 @@ export default function DashboardPage() {
       {systemInfo && (
         <Card className="p-6 bg-gradient-to-br from-blue-600 via-purple-600 to-purple-700 text-white hover-elevate transition-all duration-300">
           <div className="flex items-center gap-6">
-            <div className="text-6xl">{getOSLogo()}</div>
+            <div>{getOSLogo()}</div>
             <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <p className="text-xs text-white/70 font-semibold uppercase tracking-wider mb-1">Sistema Operacional</p>
