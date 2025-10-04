@@ -54,6 +54,16 @@ const mockClients = [
     groupName: "gold",
     company: "TECHCORP",
   },
+  {
+    id: "3",
+    name: "Pedro Santos",
+    cpfCnpj: "98765432100",
+    email: "pedro.santos@example.com",
+    phone: "4738010921",
+    mobilePhone: "4799376639",
+    groupName: "bronze",
+    company: "STARTUPX",
+  },
 ];
 
 export default function ClientesPage() {
