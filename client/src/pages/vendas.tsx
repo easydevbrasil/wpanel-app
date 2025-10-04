@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -42,10 +52,15 @@ export default function VendasPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string>("");
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [viewMode, setViewMode] = useState<"table" | "grid">(() => {
+    const saved = localStorage.getItem("vendas-view-mode");
+    return (saved === "table" || saved === "grid") ? saved : "table";
+  });
   const [filterBillingType, setFilterBillingType] = useState<string>("all");
   const [filterDateFrom, setFilterDateFrom] = useState<string>("");
   const [filterDateTo, setFilterDateTo] = useState<string>("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [saleToDelete, setSaleToDelete] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     billingType: "BOLETO",
     customer: "",
@@ -68,6 +83,10 @@ export default function VendasPage() {
   const { data: plans = [] } = useQuery<Plan[]>({
     queryKey: ["/api/plans"],
   });
+
+  useEffect(() => {
+    localStorage.setItem("vendas-view-mode", viewMode);
+  }, [viewMode]);
 
   const calculateDiscount = () => {
     if (!selectedPlan || !formData.value) {
@@ -168,8 +187,15 @@ export default function VendasPage() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Tem certeza que deseja remover esta venda?")) {
-      deleteMutation.mutate(id);
+    setSaleToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (saleToDelete) {
+      deleteMutation.mutate(saleToDelete);
+      setDeleteDialogOpen(false);
+      setSaleToDelete(null);
     }
   };
 
@@ -638,6 +664,31 @@ export default function VendasPage() {
           })}
         </div>
       )}
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza que deseja remover esta venda?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. A venda será permanentemente removida do sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setDeleteDialogOpen(false);
+              setSaleToDelete(null);
+            }}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -60,9 +60,16 @@ export default function FornecedoresPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<any>(null);
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [viewMode, setViewMode] = useState<"table" | "grid">(() => {
+    const saved = localStorage.getItem("fornecedores-view-mode");
+    return (saved === "table" || saved === "grid") ? saved : "table";
+  });
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+
+  useEffect(() => {
+    localStorage.setItem("fornecedores-view-mode", viewMode);
+  }, [viewMode]);
 
   const handleDelete = (id: string) => {
     setSuppliers(suppliers.filter((s) => s.id !== id));

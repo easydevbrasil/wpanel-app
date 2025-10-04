@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,10 +74,17 @@ export default function ClientesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [viewMode, setViewMode] = useState<"table" | "grid">(() => {
+    const saved = localStorage.getItem("clientes-view-mode");
+    return (saved === "table" || saved === "grid") ? saved : "table";
+  });
   const [filterGroup, setFilterGroup] = useState<string>("all");
   const [filterCompany, setFilterCompany] = useState<string>("all");
   const [selectedPlan, setSelectedPlan] = useState<string>("");
+
+  useEffect(() => {
+    localStorage.setItem("clientes-view-mode", viewMode);
+  }, [viewMode]);
 
   const { data: plans = [] } = useQuery<Plan[]>({
     queryKey: ["/api/plans"],
