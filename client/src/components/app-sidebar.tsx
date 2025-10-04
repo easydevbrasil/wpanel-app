@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Building2, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Building2, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
   Sidebar,
@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -35,9 +36,21 @@ const menuItems = [
 
 export function AppSidebar() {
   const [location] = useLocation();
+  const { toggleSidebar, open } = useSidebar();
 
   return (
-    <Sidebar className="border-r bg-gradient-to-b from-blue-600 via-purple-600 to-purple-700 transition-all duration-300">
+    <Sidebar className="border-r bg-gradient-to-b from-blue-600 via-purple-600 to-purple-700 transition-all duration-300 relative">
+      {/* Toggle button on the right side middle */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleSidebar}
+        className="absolute -right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-white/90 hover:bg-white text-blue-600 shadow-lg z-50 border border-blue-200"
+        data-testid="button-sidebar-collapse-toggle"
+      >
+        {open ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+      </Button>
+      
       <SidebarHeader className="border-b border-white/10 p-6 group-data-[collapsible=icon]:p-3">
         <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
           <div className="h-10 w-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
