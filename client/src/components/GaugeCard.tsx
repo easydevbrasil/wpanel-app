@@ -99,36 +99,16 @@ export function GaugeCard({
                 </filter>
               </defs>
               
-              <circle cx="90" cy="90" r="70" fill="none" stroke="currentColor" strokeWidth="12" className="text-muted/10" />
+              <circle cx="90" cy="90" r="70" fill="none" stroke="currentColor" strokeWidth="14" className="text-muted/10" />
               
               <path
-                d={createArcPath(startAngle, endAngle, 70)}
+                d={createArcPath(startAngle, currentAngle, 70)}
                 fill="none"
                 stroke={`url(#gauge-gradient-${title})`}
-                strokeWidth="12"
+                strokeWidth="14"
                 strokeLinecap="round"
+                style={{ transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)" }}
               />
-              
-              {[0, 25, 50, 75, 100].map((tick) => {
-                const angle = startAngle + (tick / 100) * totalAngle;
-                const x1 = 90 + 58 * Math.cos((angle * Math.PI) / 180);
-                const y1 = 90 + 58 * Math.sin((angle * Math.PI) / 180);
-                const x2 = 90 + 66 * Math.cos((angle * Math.PI) / 180);
-                const y2 = 90 + 66 * Math.sin((angle * Math.PI) / 180);
-                return (
-                  <line
-                    key={tick}
-                    x1={x1}
-                    y1={y1}
-                    x2={x2}
-                    y2={y2}
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    className="text-foreground/40"
-                    strokeLinecap="round"
-                  />
-                );
-              })}
               
               <line
                 x1="90"

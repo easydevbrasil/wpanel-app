@@ -40,6 +40,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/system-info", async (req, res) => {
+    try {
+      const osInfo = await si.osInfo();
+      const time = await si.time();
+      
+      const uptime = time.uptime;
+      const days = Math.floor(uptime / (24 * 60 * 60));
+      const hours = Math.floor((uptime % (24 * 60 * 60)) / (60 * 60));
+      const minutes = Math.floor((uptime % (60 * 60)) / 60);
+      
+      let uptimeStr = "";
+      if (days > 0) uptimeStr += `${days}d `;
+      if (hours > 0 || days > 0) uptimeStr += `${hours}h `;
+      uptimeStr += `${minutes}min`;
+      
+      res.json({
+        os: osInfo.distro,
+        platform: osInfo.platform,
+        kernel: osInfo.kernel,
+        arch: osInfo.arch,
+        hostname: osInfo.hostname,
+        uptime: uptimeStr,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch system info" });
+    }
+  });
+
   app.get("/api/plans", async (req, res) => {
     try {
       const plans = await storage.getPlans();
