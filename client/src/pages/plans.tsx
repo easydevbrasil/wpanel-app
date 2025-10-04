@@ -113,7 +113,7 @@ export default function PlansPage() {
 
   const getPlanColor = (name: string) => {
     const lower = name.toLowerCase();
-    if (lower.includes("platinum")) return "from-purple-500 to-pink-600";
+    if (lower.includes("platinum")) return "from-slate-400 to-zinc-500";
     if (lower.includes("gold")) return "from-yellow-500 to-orange-600";
     if (lower.includes("bronze")) return "from-amber-700 to-amber-900";
     return "from-blue-500 to-purple-600";
