@@ -13,10 +13,33 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Pencil, Trash2, Percent } from "lucide-react";
+import { Plus, Pencil, Trash2, Percent, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { type Plan } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+
+const COLOR_PALETTE = [
+  { name: "Azul", value: "blue-500", bg: "bg-blue-500" },
+  { name: "Azul Escuro", value: "blue-600", bg: "bg-blue-600" },
+  { name: "Roxo", value: "purple-500", bg: "bg-purple-500" },
+  { name: "Roxo Escuro", value: "purple-600", bg: "bg-purple-600" },
+  { name: "Rosa", value: "pink-500", bg: "bg-pink-500" },
+  { name: "Rosa Escuro", value: "pink-600", bg: "bg-pink-600" },
+  { name: "Verde", value: "green-500", bg: "bg-green-500" },
+  { name: "Verde Escuro", value: "green-600", bg: "bg-green-600" },
+  { name: "Amarelo", value: "yellow-500", bg: "bg-yellow-500" },
+  { name: "Laranja", value: "orange-500", bg: "bg-orange-500" },
+  { name: "Laranja Escuro", value: "orange-600", bg: "bg-orange-600" },
+  { name: "Vermelho", value: "red-500", bg: "bg-red-500" },
+  { name: "Vermelho Escuro", value: "red-600", bg: "bg-red-600" },
+  { name: "Índigo", value: "indigo-500", bg: "bg-indigo-500" },
+  { name: "Índigo Escuro", value: "indigo-600", bg: "bg-indigo-600" },
+  { name: "Ciano", value: "cyan-500", bg: "bg-cyan-500" },
+  { name: "Teal", value: "teal-500", bg: "bg-teal-500" },
+  { name: "Esmeralda", value: "emerald-500", bg: "bg-emerald-500" },
+  { name: "Slate", value: "slate-500", bg: "bg-slate-500" },
+  { name: "Cinza", value: "gray-500", bg: "bg-gray-500" },
+];
 
 export default function PlansPage() {
   const { toast } = useToast();
