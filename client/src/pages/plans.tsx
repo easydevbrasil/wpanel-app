@@ -232,16 +232,16 @@ export default function PlansPage() {
               </div>
               <div className="space-y-2 col-span-2">
                 <Label>Paleta de Cores</Label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="flex flex-wrap gap-2">
                   {colorPalettes.map((palette) => (
                     <button
                       key={palette.id}
                       type="button"
                       onClick={() => setFormData({ ...formData, colorFrom: palette.from, colorTo: palette.to })}
-                      style={{ background: palette.gradient }}
-                      className={`h-12 rounded-lg hover:scale-105 transition-transform ${
+                      style={{ background: palette.gradient, width: '32px', height: '32px' }}
+                      className={`rounded hover:scale-110 transition-transform ${
                         formData.colorFrom === palette.from && formData.colorTo === palette.to
-                          ? "ring-2 ring-offset-2 ring-primary"
+                          ? "ring-2 ring-offset-1 ring-primary"
                           : ""
                       }`}
                       data-testid={`button-color-${palette.id}`}

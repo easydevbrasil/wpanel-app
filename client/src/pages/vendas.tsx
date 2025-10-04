@@ -28,10 +28,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, DollarSign, Calculator } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, DollarSign, Calculator, Grid3x3, TableProperties, X, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { type Sale, type Plan } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
 
 export default function VendasPage() {
   const { toast } = useToast();
@@ -39,6 +42,10 @@ export default function VendasPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string>("");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [filterBillingType, setFilterBillingType] = useState<string>("all");
+  const [filterDateFrom, setFilterDateFrom] = useState<string>("");
+  const [filterDateTo, setFilterDateTo] = useState<string>("");
   const [formData, setFormData] = useState({
     billingType: "BOLETO",
     customer: "",
@@ -184,12 +191,44 @@ export default function VendasPage() {
     });
   };
 
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value / 100);
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return format(parseISO(dateString), 'dd/MM/yyyy', { locale: ptBR });
+    } catch {
+      return dateString;
+    }
+  };
+
   const filteredSales = sales.filter((s) => {
     const matchesSearch = s.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.externalReference?.includes(searchTerm);
-    return matchesSearch;
+    
+    const matchesBillingType = filterBillingType === "all" || s.billingType === filterBillingType;
+    
+    let matchesDateRange = true;
+    if (filterDateFrom && s.dueDate < filterDateFrom) matchesDateRange = false;
+    if (filterDateTo && s.dueDate > filterDateTo) matchesDateRange = false;
+    
+    return matchesSearch && matchesBillingType && matchesDateRange;
   });
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setFilterBillingType("all");
+    setFilterDateFrom("");
+    setFilterDateTo("");
+  };
+
+  const hasActiveFilters = searchTerm || filterBillingType !== "all" || filterDateFrom || filterDateTo;
 
   if (isLoading) {
     return (
@@ -249,10 +288,10 @@ export default function VendasPage() {
                 </Select>
               </div>
               <div className="col-span-2 md:col-span-1 space-y-2">
-                <Label htmlFor="customer">Cliente</Label>
+                <Label htmlFor="customer">Nome do Cliente</Label>
                 <Input
                   id="customer"
-                  placeholder="ID do cliente"
+                  placeholder="Nome do cliente"
                   value={formData.customer}
                   onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
                   data-testid="input-customer"
@@ -274,13 +313,14 @@ export default function VendasPage() {
                 </Select>
               </div>
               <div className="col-span-2 md:col-span-1 space-y-2">
-                <Label htmlFor="value">Valor</Label>
+                <Label htmlFor="value">Valor (R$)</Label>
                 <Input
                   id="value"
                   type="number"
                   step="0.01"
-                  value={formData.value}
-                  onChange={(e) => setFormData({ ...formData, value: Number(e.target.value) })}
+                  placeholder="0.00"
+                  value={formData.value / 100}
+                  onChange={(e) => setFormData({ ...formData, value: Math.round(Number(e.target.value) * 100) })}
                   data-testid="input-value"
                 />
               </div>
@@ -380,25 +420,100 @@ export default function VendasPage() {
         </Dialog>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            placeholder="Buscar vendas..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-            data-testid="input-search"
-          />
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              placeholder="Buscar vendas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+              data-testid="input-search"
+            />
+          </div>
+
+          <Select value={filterBillingType} onValueChange={setFilterBillingType}>
+            <SelectTrigger className="w-[180px]" data-testid="select-filter-billing-type">
+              <SelectValue placeholder="Tipo de Cobrança" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os tipos</SelectItem>
+              <SelectItem value="BOLETO">Boleto</SelectItem>
+              <SelectItem value="CREDIT_CARD">Cartão de Crédito</SelectItem>
+              <SelectItem value="PIX">PIX</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <Input
+              type="date"
+              value={filterDateFrom}
+              onChange={(e) => setFilterDateFrom(e.target.value)}
+              className="w-[150px]"
+              data-testid="input-filter-date-from"
+              placeholder="De"
+            />
+            <span className="text-muted-foreground">até</span>
+            <Input
+              type="date"
+              value={filterDateTo}
+              onChange={(e) => setFilterDateTo(e.target.value)}
+              className="w-[150px]"
+              data-testid="input-filter-date-to"
+              placeholder="Até"
+            />
+          </div>
+
+          {hasActiveFilters && (
+            <Button variant="outline" size="sm" onClick={clearFilters} data-testid="button-clear-filters">
+              <X className="h-4 w-4 mr-2" />
+              Limpar filtros
+            </Button>
+          )}
+
+          <div className="ml-auto flex items-center gap-2 border rounded-lg p-1">
+            <Button
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("table")}
+              className="h-8"
+              data-testid="button-view-table"
+            >
+              <TableProperties className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "grid" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+              className="h-8"
+              data-testid="button-view-grid"
+            >
+              <Grid3x3 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
+
+        {filteredSales.length > 0 && (
+          <div className="text-sm text-muted-foreground">
+            Mostrando {filteredSales.length} de {sales.length} vendas
+          </div>
+        )}
       </div>
 
       {filteredSales.length === 0 ? (
         <div className="text-center py-12 border rounded-lg">
           <p className="text-muted-foreground">Nenhuma venda encontrada</p>
-          <p className="text-sm text-muted-foreground mt-1">Clique em "Nova Venda" para começar</p>
+          {hasActiveFilters ? (
+            <Button variant="ghost" onClick={clearFilters} className="mt-2">
+              Limpar filtros
+            </Button>
+          ) : (
+            <p className="text-sm text-muted-foreground mt-1">Clique em "Nova Venda" para começar</p>
+          )}
         </div>
-      ) : (
+      ) : viewMode === "table" ? (
         <div className="border rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
@@ -414,20 +529,22 @@ export default function VendasPage() {
             <TableBody>
               {filteredSales.map((sale) => (
                 <TableRow key={sale.id} className="hover-elevate">
-                  <TableCell className="font-medium">{sale.customer}</TableCell>
+                  <TableCell className="font-medium" data-testid={`text-customer-${sale.id}`}>
+                    {sale.customer}
+                  </TableCell>
                   <TableCell>{sale.description || "-"}</TableCell>
                   <TableCell>
                     <Badge variant="secondary">
-                      {sale.billingType}
+                      {sale.billingType === "BOLETO" ? "Boleto" : sale.billingType === "PIX" ? "PIX" : "Cartão"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <DollarSign className="h-4 w-4 text-green-600" />
-                      <span className="font-semibold">{(sale.value / 100).toFixed(2)}</span>
+                      <span className="font-semibold">{formatCurrency(sale.value)}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{sale.dueDate}</TableCell>
+                  <TableCell>{formatDate(sale.dueDate)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button
@@ -452,6 +569,73 @@ export default function VendasPage() {
               ))}
             </TableBody>
           </Table>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {filteredSales.map((sale) => {
+            return (
+              <Card key={sale.id} className="hover-elevate transition-all">
+                <CardContent className="p-0 flex">
+                  <div className="w-2 bg-gradient-to-b from-blue-500 to-purple-600"></div>
+                  <div className="flex-1 p-4 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-semibold text-lg" data-testid={`text-customer-${sale.id}`}>
+                          {sale.customer}
+                        </p>
+                        <p className="text-sm text-muted-foreground">{sale.description || "Sem descrição"}</p>
+                      </div>
+                      <Badge variant="secondary">
+                        {sale.billingType === "BOLETO" ? "Boleto" : sale.billingType === "PIX" ? "PIX" : "Cartão"}
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Valor</p>
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="h-5 w-5 text-green-600" />
+                          <span className="font-bold text-xl text-green-600">{formatCurrency(sale.value)}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Vencimento</p>
+                        <p className="font-semibold">{formatDate(sale.dueDate)}</p>
+                      </div>
+                    </div>
+
+                    {sale.discountValue && sale.discountValue > 0 && (
+                      <div className="flex items-center gap-2 text-sm text-orange-600">
+                        <span>Desconto: {formatCurrency(sale.discountValue)}</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-end gap-2 pt-2 border-t">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(sale)}
+                        data-testid={`button-edit-${sale.id}`}
+                      >
+                        <Pencil className="h-4 w-4 mr-1" />
+                        Editar
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(sale.id)}
+                        data-testid={`button-delete-${sale.id}`}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Excluir
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
