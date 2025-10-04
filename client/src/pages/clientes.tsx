@@ -387,77 +387,59 @@ export default function ClientesPage() {
           </Table>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredClients.map((client) => (
-            <Card key={client.id} className="hover-elevate transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4 mb-4">
-                  <Avatar className="h-16 w-16 border-2 border-primary/20 flex-shrink-0">
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-lg">
+            <Card key={client.id} className="hover-elevate transition-all h-32">
+              <CardContent className="p-0 h-full flex gap-4">
+                <div className="w-[30%] h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 rounded-l-lg">
+                  <Avatar className="w-[80%] h-[80%] border-2 border-white/20">
+                    <AvatarFallback className="bg-transparent text-white text-2xl font-bold">
                       {client.name.split(" ").map((n) => n[0]).join("")}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-lg" data-testid={`text-client-name-${client.id}`}>
+                </div>
+                <div className="flex-1 flex flex-col justify-between py-3 pr-3 min-w-0">
+                  <div className="space-y-1">
+                    <p className="font-semibold text-sm truncate" data-testid={`text-client-name-${client.id}`}>
                       {client.name}
                     </p>
+                    <p className="text-xs text-muted-foreground font-mono truncate">{client.cpfCnpj}</p>
+                    <p className="text-xs text-muted-foreground truncate">{client.mobilePhone}</p>
+                  </div>
+                  <div className="flex items-center justify-between">
                     <Badge
                       variant="secondary"
                       className={
                         client.groupName === "platinum"
-                          ? "bg-gradient-to-r from-gray-400 to-gray-600 text-white mt-1"
+                          ? "bg-slate-400 text-white text-xs"
                           : client.groupName === "gold"
-                          ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white mt-1"
-                          : "bg-gradient-to-r from-orange-400 to-orange-600 text-white mt-1"
+                          ? "bg-yellow-500 text-white text-xs"
+                          : "bg-amber-700 text-white text-xs"
                       }
                     >
                       {client.groupName}
                     </Badge>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => handleEdit(client)}
+                        data-testid={`button-edit-${client.id}`}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => handleDelete(client.id)}
+                        data-testid={`button-delete-${client.id}`}
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Email</p>
-                    <p className="font-medium">{client.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">CPF/CNPJ</p>
-                    <p className="font-mono font-medium">{client.cpfCnpj}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Telefone</p>
-                    <p className="font-medium">{client.phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Celular</p>
-                    <p className="font-medium">{client.mobilePhone}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Empresa</p>
-                    <p className="font-medium">{client.company}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => handleEdit(client)}
-                    data-testid={`button-edit-${client.id}`}
-                  >
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Editar
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(client.id)}
-                    data-testid={`button-delete-${client.id}`}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
                 </div>
               </CardContent>
             </Card>

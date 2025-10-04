@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Plan, type InsertPlan } from "@shared/schema";
+import { type User, type InsertUser, type Plan, type InsertPlan, type Sale, type InsertSale } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -11,15 +11,23 @@ export interface IStorage {
   createPlan(plan: InsertPlan): Promise<Plan>;
   updatePlan(id: string, plan: Partial<InsertPlan>): Promise<Plan | undefined>;
   deletePlan(id: string): Promise<boolean>;
+
+  getSales(): Promise<Sale[]>;
+  getSale(id: string): Promise<Sale | undefined>;
+  createSale(sale: InsertSale): Promise<Sale>;
+  updateSale(id: string, sale: Partial<InsertSale>): Promise<Sale | undefined>;
+  deleteSale(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private plans: Map<string, Plan>;
+  private sales: Map<string, Sale>;
 
   constructor() {
     this.users = new Map();
     this.plans = new Map();
+    this.sales = new Map();
     
     const defaultPlans: Plan[] = [
       { id: randomUUID(), name: "Platinum", cashDiscount: 15, installmentDiscount: 10, subscriptionDiscount: 20 },
@@ -79,6 +87,37 @@ export class MemStorage implements IStorage {
   
   async deletePlan(id: string): Promise<boolean> {
     return this.plans.delete(id);
+  }
+
+  async getSales(): Promise<Sale[]> {
+    return Array.from(this.sales.values());
+  }
+  
+  async getSale(id: string): Promise<Sale | undefined> {
+    return this.sales.get(id);
+  }
+  
+  async createSale(insertSale: InsertSale): Promise<Sale> {
+    const id = randomUUID();
+    const sale: Sale = { 
+      id,
+      ...insertSale,
+    };
+    this.sales.set(id, sale);
+    return sale;
+  }
+  
+  async updateSale(id: string, updates: Partial<InsertSale>): Promise<Sale | undefined> {
+    const existing = this.sales.get(id);
+    if (!existing) return undefined;
+    
+    const updated: Sale = { ...existing, ...updates };
+    this.sales.set(id, updated);
+    return updated;
+  }
+  
+  async deleteSale(id: string): Promise<boolean> {
+    return this.sales.delete(id);
   }
 }
 

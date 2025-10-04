@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { storage } from "./storage";
-import { insertPlanSchema } from "@shared/schema";
+import { insertPlanSchema, insertSaleSchema } from "@shared/schema";
 import * as si from "systeminformation";
 import { exec } from "child_process";
 import { promisify } from "util";
@@ -99,6 +99,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete plan" });
+    }
+  });
+
+  app.get("/api/sales", async (req, res) => {
+    try {
+      const sales = await storage.getSales();
+      res.json(sales);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch sales" });
+    }
+  });
+
+  app.get("/api/sales/:id", async (req, res) => {
+    try {
+      const sale = await storage.getSale(req.params.id);
+      if (!sale) {
+        return res.status(404).json({ error: "Sale not found" });
+      }
+      res.json(sale);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch sale" });
+    }
+  });
+
+  app.post("/api/sales", async (req, res) => {
+    try {
+      const validatedData = insertSaleSchema.parse(req.body);
+      const sale = await storage.createSale(validatedData);
+      res.status(201).json(sale);
+    } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid sale data", details: error });
+      }
+      res.status(500).json({ error: "Failed to create sale" });
+    }
+  });
+
+  app.patch("/api/sales/:id", async (req, res) => {
+    try {
+      const validatedData = insertSaleSchema.partial().parse(req.body);
+      const sale = await storage.updateSale(req.params.id, validatedData);
+      if (!sale) {
+        return res.status(404).json({ error: "Sale not found" });
+      }
+      res.json(sale);
+    } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid sale data", details: error });
+      }
+      res.status(500).json({ error: "Failed to update sale" });
+    }
+  });
+
+  app.delete("/api/sales/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteSale(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Sale not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete sale" });
     }
   });
 

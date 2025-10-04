@@ -335,69 +335,57 @@ export default function FornecedoresPage() {
           </Table>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredSuppliers.map((supplier) => (
-            <Card key={supplier.id} className="hover-elevate transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4 mb-4">
-                  <Avatar className="h-16 w-16 border-2 border-primary/20 flex-shrink-0">
-                    <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-lg">
+            <Card key={supplier.id} className="hover-elevate transition-all h-32">
+              <CardContent className="p-0 h-full flex gap-4">
+                <div className="w-[30%] h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 rounded-l-lg">
+                  <Avatar className="w-[80%] h-[80%] border-2 border-white/20">
+                    <AvatarFallback className="bg-transparent text-white text-2xl font-bold">
                       {supplier.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-lg" data-testid={`text-supplier-name-${supplier.id}`}>
+                </div>
+                <div className="flex-1 flex flex-col justify-between py-3 pr-3 min-w-0">
+                  <div className="space-y-1">
+                    <p className="font-semibold text-sm truncate" data-testid={`text-supplier-name-${supplier.id}`}>
                       {supplier.name}
                     </p>
-                    <Badge variant="secondary" className="mt-1">
-                      {supplier.category}
-                    </Badge>
+                    <p className="text-xs text-muted-foreground font-mono truncate">{supplier.cpfCnpj}</p>
+                    <p className="text-xs text-muted-foreground truncate">{supplier.phone}</p>
                   </div>
-                </div>
-                
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Email</p>
-                    <p className="font-medium">{supplier.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">CNPJ</p>
-                    <p className="font-mono font-medium">{supplier.cpfCnpj}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Telefone</p>
-                    <p className="font-medium">{supplier.phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Status</p>
+                  <div className="flex items-center justify-between">
                     <Badge
                       variant="secondary"
-                      className="bg-gradient-to-r from-green-500 to-emerald-600 text-white mt-1"
+                      className={
+                        supplier.status === "active"
+                          ? "bg-green-500 text-white text-xs"
+                          : "bg-red-500 text-white text-xs"
+                      }
                     >
                       {supplier.status === "active" ? "Ativo" : "Inativo"}
                     </Badge>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => handleEdit(supplier)}
+                        data-testid={`button-edit-supplier-${supplier.id}`}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => handleDelete(supplier.id)}
+                        data-testid={`button-delete-supplier-${supplier.id}`}
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => handleEdit(supplier)}
-                    data-testid={`button-edit-supplier-${supplier.id}`}
-                  >
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Editar
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(supplier.id)}
-                    data-testid={`button-delete-supplier-${supplier.id}`}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
                 </div>
               </CardContent>
             </Card>
