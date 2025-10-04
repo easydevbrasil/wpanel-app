@@ -18,27 +18,19 @@ import { useToast } from "@/hooks/use-toast";
 import { type Plan } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
-const COLOR_PALETTE = [
-  { name: "Azul", value: "blue-500", bg: "bg-blue-500" },
-  { name: "Azul Escuro", value: "blue-600", bg: "bg-blue-600" },
-  { name: "Roxo", value: "purple-500", bg: "bg-purple-500" },
-  { name: "Roxo Escuro", value: "purple-600", bg: "bg-purple-600" },
-  { name: "Rosa", value: "pink-500", bg: "bg-pink-500" },
-  { name: "Rosa Escuro", value: "pink-600", bg: "bg-pink-600" },
-  { name: "Verde", value: "green-500", bg: "bg-green-500" },
-  { name: "Verde Escuro", value: "green-600", bg: "bg-green-600" },
-  { name: "Amarelo", value: "yellow-500", bg: "bg-yellow-500" },
-  { name: "Laranja", value: "orange-500", bg: "bg-orange-500" },
-  { name: "Laranja Escuro", value: "orange-600", bg: "bg-orange-600" },
-  { name: "Vermelho", value: "red-500", bg: "bg-red-500" },
-  { name: "Vermelho Escuro", value: "red-600", bg: "bg-red-600" },
-  { name: "Índigo", value: "indigo-500", bg: "bg-indigo-500" },
-  { name: "Índigo Escuro", value: "indigo-600", bg: "bg-indigo-600" },
-  { name: "Ciano", value: "cyan-500", bg: "bg-cyan-500" },
-  { name: "Teal", value: "teal-500", bg: "bg-teal-500" },
-  { name: "Esmeralda", value: "emerald-500", bg: "bg-emerald-500" },
-  { name: "Slate", value: "slate-500", bg: "bg-slate-500" },
-  { name: "Cinza", value: "gray-500", bg: "bg-gray-500" },
+const colorPalettes = [
+  { id: "blue-purple", from: "blue-500", to: "purple-600", label: "Azul/Roxo", gradient: "linear-gradient(to right, #3b82f6, #9333ea)" },
+  { id: "green-teal", from: "green-500", to: "teal-600", label: "Verde/Turquesa", gradient: "linear-gradient(to right, #22c55e, #0d9488)" },
+  { id: "orange-red", from: "orange-500", to: "red-600", label: "Laranja/Vermelho", gradient: "linear-gradient(to right, #f97316, #dc2626)" },
+  { id: "pink-rose", from: "pink-500", to: "rose-600", label: "Rosa/Rosa Escuro", gradient: "linear-gradient(to right, #ec4899, #e11d48)" },
+  { id: "indigo-blue", from: "indigo-500", to: "blue-600", label: "Índigo/Azul", gradient: "linear-gradient(to right, #6366f1, #2563eb)" },
+  { id: "yellow-orange", from: "yellow-500", to: "orange-600", label: "Amarelo/Laranja", gradient: "linear-gradient(to right, #eab308, #ea580c)" },
+  { id: "cyan-blue", from: "cyan-500", to: "blue-600", label: "Ciano/Azul", gradient: "linear-gradient(to right, #06b6d4, #2563eb)" },
+  { id: "purple-pink", from: "purple-500", to: "pink-600", label: "Roxo/Rosa", gradient: "linear-gradient(to right, #a855f7, #db2777)" },
+  { id: "slate-gray", from: "slate-600", to: "gray-700", label: "Ardósia/Cinza", gradient: "linear-gradient(to right, #475569, #374151)" },
+  { id: "emerald-green", from: "emerald-500", to: "green-600", label: "Esmeralda/Verde", gradient: "linear-gradient(to right, #10b981, #16a34a)" },
+  { id: "amber-orange", from: "amber-500", to: "orange-600", label: "Âmbar/Laranja", gradient: "linear-gradient(to right, #f59e0b, #ea580c)" },
+  { id: "violet-purple", from: "violet-500", to: "purple-600", label: "Violeta/Roxo", gradient: "linear-gradient(to right, #8b5cf6, #9333ea)" },
 ];
 
 export default function PlansPage() {
@@ -238,25 +230,28 @@ export default function PlansPage() {
                   data-testid="input-subscription-discount"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="colorFrom">Cor Inicial (Tailwind)</Label>
-                <Input
-                  id="colorFrom"
-                  placeholder="Ex: blue-500, slate-400"
-                  value={formData.colorFrom}
-                  onChange={(e) => setFormData({ ...formData, colorFrom: e.target.value })}
-                  data-testid="input-color-from"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="colorTo">Cor Final (Tailwind)</Label>
-                <Input
-                  id="colorTo"
-                  placeholder="Ex: purple-600, zinc-500"
-                  value={formData.colorTo}
-                  onChange={(e) => setFormData({ ...formData, colorTo: e.target.value })}
-                  data-testid="input-color-to"
-                />
+              <div className="space-y-2 col-span-2">
+                <Label>Paleta de Cores</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {colorPalettes.map((palette) => (
+                    <button
+                      key={palette.id}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, colorFrom: palette.from, colorTo: palette.to })}
+                      style={{ background: palette.gradient }}
+                      className={`h-12 rounded-lg hover:scale-105 transition-transform ${
+                        formData.colorFrom === palette.from && formData.colorTo === palette.to
+                          ? "ring-2 ring-offset-2 ring-primary"
+                          : ""
+                      }`}
+                      data-testid={`button-color-${palette.id}`}
+                      title={palette.label}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Cor selecionada: {formData.colorFrom} → {formData.colorTo}
+                </p>
               </div>
             </div>
             <div className="flex justify-end gap-3">
