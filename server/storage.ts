@@ -30,12 +30,62 @@ export class MemStorage implements IStorage {
     this.sales = new Map();
     
     const defaultPlans: Plan[] = [
-      { id: randomUUID(), name: "Platinum", cashDiscount: 15, installmentDiscount: 10, subscriptionDiscount: 20 },
-      { id: randomUUID(), name: "Gold", cashDiscount: 10, installmentDiscount: 7, subscriptionDiscount: 15 },
-      { id: randomUUID(), name: "Bronze", cashDiscount: 5, installmentDiscount: 3, subscriptionDiscount: 10 },
+      { id: randomUUID(), name: "Platinum", cashDiscount: 15, installmentDiscount: 10, subscriptionDiscount: 20, colorFrom: "slate-400", colorTo: "zinc-500" },
+      { id: randomUUID(), name: "Gold", cashDiscount: 10, installmentDiscount: 7, subscriptionDiscount: 15, colorFrom: "yellow-500", colorTo: "orange-600" },
+      { id: randomUUID(), name: "Bronze", cashDiscount: 5, installmentDiscount: 3, subscriptionDiscount: 10, colorFrom: "amber-700", colorTo: "amber-900" },
     ];
     
     defaultPlans.forEach(plan => this.plans.set(plan.id, plan));
+
+    const defaultSales: Sale[] = [
+      {
+        id: randomUUID(),
+        billingType: "BOLETO",
+        customer: "cus_G7Dvo4iphUNk",
+        value: 12990,
+        dueDate: "2024-12-31",
+        description: "Pedido 056984",
+        daysAfterDueDateToRegistrationCancellation: 1,
+        externalReference: "056984",
+        installmentCount: 1,
+        totalValue: 10000,
+        installmentValue: 1,
+        discountValue: 1000,
+        discountDueDateLimitDays: 1,
+      },
+      {
+        id: randomUUID(),
+        billingType: "CREDIT_CARD",
+        customer: "cus_ABC123XYZ",
+        value: 29900,
+        dueDate: "2024-12-25",
+        description: "Pedido 057123",
+        daysAfterDueDateToRegistrationCancellation: 3,
+        externalReference: "057123",
+        installmentCount: 3,
+        totalValue: 30000,
+        installmentValue: 10000,
+        discountValue: 100,
+        discountDueDateLimitDays: 5,
+      },
+      {
+        id: randomUUID(),
+        billingType: "PIX",
+        customer: "cus_XYZ789DEF",
+        value: 15000,
+        dueDate: "2024-12-20",
+        description: "Pedido 057456",
+        daysAfterDueDateToRegistrationCancellation: 1,
+        externalReference: "057456",
+        installmentCount: 1,
+        totalValue: 15000,
+        installmentValue: 1,
+        discountValue: 0,
+        discountDueDateLimitDays: 0,
+      },
+    ];
+
+    defaultSales.forEach(sale => this.sales.set(sale.id, sale));
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -71,6 +121,8 @@ export class MemStorage implements IStorage {
       cashDiscount: insertPlan.cashDiscount ?? 0,
       installmentDiscount: insertPlan.installmentDiscount ?? 0,
       subscriptionDiscount: insertPlan.subscriptionDiscount ?? 0,
+      colorFrom: insertPlan.colorFrom ?? "blue-500",
+      colorTo: insertPlan.colorTo ?? "purple-600",
     };
     this.plans.set(id, plan);
     return plan;

@@ -27,6 +27,8 @@ export default function PlansPage() {
     cashDiscount: 0,
     installmentDiscount: 0,
     subscriptionDiscount: 0,
+    colorFrom: "blue-500",
+    colorTo: "purple-600",
   });
 
   const { data: plans = [], isLoading } = useQuery<Plan[]>({
@@ -78,6 +80,8 @@ export default function PlansPage() {
       cashDiscount: plan.cashDiscount,
       installmentDiscount: plan.installmentDiscount,
       subscriptionDiscount: plan.subscriptionDiscount,
+      colorFrom: plan.colorFrom,
+      colorTo: plan.colorTo,
     });
     setIsDialogOpen(true);
   };
@@ -108,15 +112,13 @@ export default function PlansPage() {
       cashDiscount: 0,
       installmentDiscount: 0,
       subscriptionDiscount: 0,
+      colorFrom: "blue-500",
+      colorTo: "purple-600",
     });
   };
 
-  const getPlanColor = (name: string) => {
-    const lower = name.toLowerCase();
-    if (lower.includes("platinum")) return "from-slate-400 to-zinc-500";
-    if (lower.includes("gold")) return "from-yellow-500 to-orange-600";
-    if (lower.includes("bronze")) return "from-amber-700 to-amber-900";
-    return "from-blue-500 to-purple-600";
+  const getPlanColor = (plan: Plan) => {
+    return `from-${plan.colorFrom} to-${plan.colorTo}`;
   };
 
   if (isLoading) {
@@ -213,6 +215,26 @@ export default function PlansPage() {
                   data-testid="input-subscription-discount"
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="colorFrom">Cor Inicial (Tailwind)</Label>
+                <Input
+                  id="colorFrom"
+                  placeholder="Ex: blue-500, slate-400"
+                  value={formData.colorFrom}
+                  onChange={(e) => setFormData({ ...formData, colorFrom: e.target.value })}
+                  data-testid="input-color-from"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="colorTo">Cor Final (Tailwind)</Label>
+                <Input
+                  id="colorTo"
+                  placeholder="Ex: purple-600, zinc-500"
+                  value={formData.colorTo}
+                  onChange={(e) => setFormData({ ...formData, colorTo: e.target.value })}
+                  data-testid="input-color-to"
+                />
+              </div>
             </div>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => {
@@ -240,7 +262,7 @@ export default function PlansPage() {
             key={plan.id}
             className="hover-elevate transition-all duration-300 overflow-hidden"
           >
-            <CardHeader className={`bg-gradient-to-br ${getPlanColor(plan.name)} text-white p-6`}>
+            <CardHeader className={`bg-gradient-to-br ${getPlanColor(plan)} text-white p-6`}>
               <CardTitle className="flex items-center justify-between">
                 <span className="text-2xl font-bold">{plan.name}</span>
                 <div className="flex gap-2">
