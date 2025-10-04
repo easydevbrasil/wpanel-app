@@ -28,9 +28,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, DollarSign } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, DollarSign, Calculator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { type Sale } from "@shared/schema";
+import { type Sale, type Plan } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function VendasPage() {
@@ -38,6 +38,7 @@ export default function VendasPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [formData, setFormData] = useState({
     billingType: "BOLETO",
     customer: "",
@@ -56,6 +57,38 @@ export default function VendasPage() {
   const { data: sales = [], isLoading } = useQuery<Sale[]>({
     queryKey: ["/api/sales"],
   });
+
+  const { data: plans = [] } = useQuery<Plan[]>({
+    queryKey: ["/api/plans"],
+  });
+
+  const calculateDiscount = () => {
+    if (!selectedPlan || !formData.value) {
+      toast({ title: "Selecione um plano e informe o valor", variant: "destructive" });
+      return;
+    }
+
+    const plan = plans.find(p => p.name === selectedPlan);
+    if (!plan) {
+      toast({ title: "Plano não encontrado", variant: "destructive" });
+      return;
+    }
+
+    let discountPercent = 0;
+    if (formData.billingType === "PIX" || formData.billingType === "BOLETO") {
+      discountPercent = plan.cashDiscount;
+    } else if (formData.billingType === "CREDIT_CARD") {
+      if (formData.installmentCount === 1) {
+        discountPercent = plan.cashDiscount;
+      } else {
+        discountPercent = plan.installmentDiscount;
+      }
+    }
+
+    const discountValue = Math.round(formData.value * (discountPercent / 100));
+    setFormData({ ...formData, discountValue });
+    toast({ title: `Desconto de ${discountPercent}% aplicado: ${(discountValue / 100).toFixed(2)}` });
+  };
 
   const createMutation = useMutation({
     mutationFn: (data: typeof formData) => apiRequest("/api/sales", "POST", data),
@@ -226,6 +259,21 @@ export default function VendasPage() {
                 />
               </div>
               <div className="col-span-2 md:col-span-1 space-y-2">
+                <Label htmlFor="plan">Plano do Cliente</Label>
+                <Select value={selectedPlan} onValueChange={setSelectedPlan}>
+                  <SelectTrigger data-testid="select-plan">
+                    <SelectValue placeholder="Selecione o plano" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {plans.map((plan) => (
+                      <SelectItem key={plan.id} value={plan.name}>
+                        {plan.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2 md:col-span-1 space-y-2">
                 <Label htmlFor="value">Valor</Label>
                 <Input
                   id="value"
@@ -279,14 +327,26 @@ export default function VendasPage() {
               </div>
               <div className="col-span-2 md:col-span-1 space-y-2">
                 <Label htmlFor="discountValue">Desconto</Label>
-                <Input
-                  id="discountValue"
-                  type="number"
-                  step="0.01"
-                  value={formData.discountValue}
-                  onChange={(e) => setFormData({ ...formData, discountValue: Number(e.target.value) })}
-                  data-testid="input-discount-value"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="discountValue"
+                    type="number"
+                    step="0.01"
+                    value={formData.discountValue}
+                    onChange={(e) => setFormData({ ...formData, discountValue: Number(e.target.value) })}
+                    data-testid="input-discount-value"
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={calculateDiscount}
+                    data-testid="button-calculate-discount"
+                    className="flex-shrink-0"
+                  >
+                    <Calculator className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <div className="col-span-2 md:col-span-1 space-y-2">
                 <Label htmlFor="discountDueDateLimitDays">Dias Limite Desconto</Label>
