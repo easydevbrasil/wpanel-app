@@ -37,13 +37,13 @@ export function AppSidebar() {
   const [location] = useLocation();
 
   return (
-    <Sidebar className="border-r bg-gradient-to-b from-blue-600 via-purple-600 to-purple-700">
-      <SidebarHeader className="border-b border-white/10 p-6">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
+    <Sidebar className="border-r bg-gradient-to-b from-blue-600 via-purple-600 to-purple-700 transition-all duration-300">
+      <SidebarHeader className="border-b border-white/10 p-6 group-data-[collapsible=icon]:p-3">
+        <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
+          <div className="h-10 w-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
             <span className="text-2xl font-bold text-white">W</span>
           </div>
-          <div>
+          <div className="group-data-[collapsible=icon]:hidden">
             <h1 className="text-xl font-bold text-white">wPanel</h1>
             <p className="text-xs text-white/70">Painel Administrativo</p>
           </div>
@@ -52,7 +52,7 @@ export function AppSidebar() {
 
       <SidebarContent className="px-3 py-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-white/60 text-xs uppercase tracking-wider px-3 mb-2">
+          <SidebarGroupLabel className="text-white/60 text-xs uppercase tracking-wider px-3 mb-2 group-data-[collapsible=icon]:hidden">
             Menu Principal
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -62,12 +62,13 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={location === item.url}
-                    className="text-white/70 hover:text-white hover:bg-white/10 data-[active=true]:bg-white/20 data-[active=true]:text-white transition-all"
+                    className="text-white/70 hover:text-white hover:bg-white/10 data-[active=true]:bg-white/20 data-[active=true]:text-white transition-all group-data-[collapsible=icon]:justify-center"
                     data-testid={`link-${item.title.toLowerCase()}`}
+                    tooltip={item.title}
                   >
                     <Link href={item.url}>
-                      <item.icon className="h-5 w-5" />
-                      <span className="font-medium">{item.title}</span>
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      <span className="font-medium group-data-[collapsible=icon]:hidden">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -77,14 +78,14 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-white/10 p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <Avatar className="h-10 w-10 border-2 border-white/20">
+      <SidebarFooter className="border-t border-white/10 p-4 group-data-[collapsible=icon]:p-2">
+        <div className="flex items-center gap-3 mb-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mb-2">
+          <Avatar className="h-10 w-10 border-2 border-white/20 flex-shrink-0">
             <AvatarFallback className="bg-white/10 text-white font-semibold">
               AD
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="text-sm font-medium text-white truncate">Admin User</p>
             <p className="text-xs text-white/60 truncate">admin@wpanel.com</p>
           </div>
@@ -92,12 +93,12 @@ export function AppSidebar() {
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10"
+          className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2"
           data-testid="button-logout"
           onClick={() => console.log("Logout clicked")}
         >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sair
+          <LogOut className="h-4 w-4 group-data-[collapsible=icon]:mr-0 mr-2 flex-shrink-0" />
+          <span className="group-data-[collapsible=icon]:hidden">Sair</span>
         </Button>
       </SidebarFooter>
     </Sidebar>
