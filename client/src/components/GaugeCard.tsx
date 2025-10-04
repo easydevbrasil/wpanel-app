@@ -21,8 +21,8 @@ export function GaugeCard({
   const isUnavailable = maxValue === 0;
   const percentage = isUnavailable ? 0 : (value / maxValue) * 100;
   
-  const startAngle = -140;
-  const endAngle = 140;
+  const startAngle = 220;
+  const endAngle = 320;
   const totalAngle = endAngle - startAngle;
   const currentAngle = startAngle + (percentage / 100) * totalAngle;
   
@@ -147,11 +147,14 @@ export function GaugeCard({
               <circle cx="90" cy="90" r="4" fill="white" />
             </svg>
             
-            <div className="absolute inset-0 flex flex-col items-center justify-center mt-12">
-              <span className={`text-4xl font-bold font-mono ${getStatusColor()} drop-shadow-lg`}>
+            <div className="absolute inset-0 flex flex-col items-center justify-end pb-8">
+              <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">
+                {percentage.toFixed(0)}%
+              </span>
+              <span className={`text-3xl font-bold font-mono ${getStatusColor()} drop-shadow-lg`}>
                 {value.toFixed(1)}
               </span>
-              <span className="text-xs text-muted-foreground font-semibold mt-0.5 uppercase tracking-wider">
+              <span className="text-xs text-muted-foreground font-medium mt-0.5 uppercase tracking-wider">
                 {unit}
               </span>
             </div>
