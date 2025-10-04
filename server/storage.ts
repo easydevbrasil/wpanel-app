@@ -101,7 +101,18 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const sale: Sale = { 
       id,
-      ...insertSale,
+      billingType: insertSale.billingType,
+      customer: insertSale.customer,
+      value: insertSale.value,
+      dueDate: insertSale.dueDate,
+      description: insertSale.description ?? null,
+      daysAfterDueDateToRegistrationCancellation: insertSale.daysAfterDueDateToRegistrationCancellation ?? null,
+      externalReference: insertSale.externalReference ?? null,
+      installmentCount: insertSale.installmentCount ?? null,
+      totalValue: insertSale.totalValue ?? null,
+      installmentValue: insertSale.installmentValue ?? null,
+      discountValue: insertSale.discountValue ?? null,
+      discountDueDateLimitDays: insertSale.discountDueDateLimitDays ?? null,
     };
     this.sales.set(id, sale);
     return sale;
