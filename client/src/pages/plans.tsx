@@ -29,18 +29,18 @@ import { type Plan } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 const colorPalettes = [
-  { id: "platinum", from: "slate-400", to: "gray-600", label: "Platinum", gradient: "linear-gradient(to right, #94a3b8, #4b5563)" },
-  { id: "gold", from: "yellow-400", to: "orange-500", label: "Gold", gradient: "linear-gradient(to right, #facc15, #f97316)" },
-  { id: "bronze", from: "orange-600", to: "amber-700", label: "Bronze", gradient: "linear-gradient(to right, #ea580c, #b45309)" },
-  { id: "blue-purple", from: "blue-500", to: "purple-600", label: "Azul/Roxo", gradient: "linear-gradient(to right, #3b82f6, #9333ea)" },
-  { id: "green-teal", from: "green-500", to: "teal-600", label: "Verde/Turquesa", gradient: "linear-gradient(to right, #22c55e, #0d9488)" },
-  { id: "orange-red", from: "orange-500", to: "red-600", label: "Laranja/Vermelho", gradient: "linear-gradient(to right, #f97316, #dc2626)" },
-  { id: "pink-rose", from: "pink-500", to: "rose-600", label: "Rosa/Rosa Escuro", gradient: "linear-gradient(to right, #ec4899, #e11d48)" },
-  { id: "indigo-blue", from: "indigo-500", to: "blue-600", label: "Índigo/Azul", gradient: "linear-gradient(to right, #6366f1, #2563eb)" },
-  { id: "cyan-blue", from: "cyan-500", to: "blue-600", label: "Ciano/Azul", gradient: "linear-gradient(to right, #06b6d4, #2563eb)" },
-  { id: "purple-pink", from: "purple-500", to: "pink-600", label: "Roxo/Rosa", gradient: "linear-gradient(to right, #a855f7, #db2777)" },
-  { id: "emerald-green", from: "emerald-500", to: "green-600", label: "Esmeralda/Verde", gradient: "linear-gradient(to right, #10b981, #16a34a)" },
-  { id: "violet-purple", from: "violet-500", to: "purple-600", label: "Violeta/Roxo", gradient: "linear-gradient(to right, #8b5cf6, #9333ea)" },
+  { id: "platinum", from: "#94a3b8", to: "#4b5563", label: "Platinum", gradient: "linear-gradient(to right, #94a3b8, #4b5563)" },
+  { id: "gold", from: "#facc15", to: "#f97316", label: "Gold", gradient: "linear-gradient(to right, #facc15, #f97316)" },
+  { id: "bronze", from: "#ea580c", to: "#b45309", label: "Bronze", gradient: "linear-gradient(to right, #ea580c, #b45309)" },
+  { id: "blue-purple", from: "#3b82f6", to: "#9333ea", label: "Azul/Roxo", gradient: "linear-gradient(to right, #3b82f6, #9333ea)" },
+  { id: "green-teal", from: "#22c55e", to: "#0d9488", label: "Verde/Turquesa", gradient: "linear-gradient(to right, #22c55e, #0d9488)" },
+  { id: "orange-red", from: "#f97316", to: "#dc2626", label: "Laranja/Vermelho", gradient: "linear-gradient(to right, #f97316, #dc2626)" },
+  { id: "pink-rose", from: "#ec4899", to: "#e11d48", label: "Rosa/Rosa Escuro", gradient: "linear-gradient(to right, #ec4899, #e11d48)" },
+  { id: "indigo-blue", from: "#6366f1", to: "#2563eb", label: "Índigo/Azul", gradient: "linear-gradient(to right, #6366f1, #2563eb)" },
+  { id: "cyan-blue", from: "#06b6d4", to: "#2563eb", label: "Ciano/Azul", gradient: "linear-gradient(to right, #06b6d4, #2563eb)" },
+  { id: "purple-pink", from: "#a855f7", to: "#db2777", label: "Roxo/Rosa", gradient: "linear-gradient(to right, #a855f7, #db2777)" },
+  { id: "emerald-green", from: "#10b981", to: "#16a34a", label: "Esmeralda/Verde", gradient: "linear-gradient(to right, #10b981, #16a34a)" },
+  { id: "violet-purple", from: "#8b5cf6", to: "#9333ea", label: "Violeta/Roxo", gradient: "linear-gradient(to right, #8b5cf6, #9333ea)" },
 ];
 
 export default function PlansPage() {
@@ -54,8 +54,8 @@ export default function PlansPage() {
     cashDiscount: 0,
     installmentDiscount: 0,
     subscriptionDiscount: 0,
-    colorFrom: "blue-500",
-    colorTo: "purple-600",
+    colorFrom: "#3b82f6",
+    colorTo: "#9333ea",
   });
 
   const { data: plans = [], isLoading } = useQuery<Plan[]>({
@@ -146,13 +146,13 @@ export default function PlansPage() {
       cashDiscount: 0,
       installmentDiscount: 0,
       subscriptionDiscount: 0,
-      colorFrom: "blue-500",
-      colorTo: "purple-600",
+      colorFrom: "#3b82f6",
+      colorTo: "#9333ea",
     });
   };
 
-  const getPlanColor = (plan: Plan) => {
-    return `from-${plan.colorFrom} to-${plan.colorTo}`;
+  const getPlanGradient = (plan: Plan) => {
+    return `linear-gradient(to right, ${plan.colorFrom}, ${plan.colorTo})`;
   };
 
   if (isLoading) {
@@ -299,7 +299,7 @@ export default function PlansPage() {
             key={plan.id}
             className="hover-elevate transition-all duration-300 overflow-hidden"
           >
-            <CardHeader className={`bg-gradient-to-br ${getPlanColor(plan)} text-white p-6`}>
+            <CardHeader className="text-white p-6" style={{ background: getPlanGradient(plan) }}>
               <CardTitle className="flex items-center justify-between">
                 <span className="text-2xl font-bold">{plan.name}</span>
                 <div className="flex gap-2">

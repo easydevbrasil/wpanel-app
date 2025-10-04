@@ -23,8 +23,8 @@ export const plans = pgTable("plans", {
   cashDiscount: integer("cash_discount").notNull().default(0),
   installmentDiscount: integer("installment_discount").notNull().default(0),
   subscriptionDiscount: integer("subscription_discount").notNull().default(0),
-  colorFrom: text("color_from").notNull().default("blue-500"),
-  colorTo: text("color_to").notNull().default("purple-600"),
+  colorFrom: text("color_from").notNull().default("#3b82f6"),
+  colorTo: text("color_to").notNull().default("#9333ea"),
 });
 
 export const insertPlanSchema = createInsertSchema(plans).omit({

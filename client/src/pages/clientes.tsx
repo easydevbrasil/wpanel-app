@@ -90,12 +90,12 @@ export default function ClientesPage() {
     queryKey: ["/api/plans"],
   });
 
-  const getPlanColor = (planName: string) => {
+  const getPlanGradient = (planName: string) => {
     const plan = plans.find(p => p.name.toLowerCase() === planName.toLowerCase());
     if (plan) {
-      return `from-${plan.colorFrom} to-${plan.colorTo}`;
+      return `linear-gradient(to right, ${plan.colorFrom}, ${plan.colorTo})`;
     }
-    return "from-blue-500 to-purple-600";
+    return "linear-gradient(to right, #3b82f6, #9333ea)";
   };
 
   const handleDelete = (id: string) => {
@@ -367,7 +367,8 @@ export default function ClientesPage() {
                   <TableCell>
                     <Badge
                       variant="secondary"
-                      className={`bg-gradient-to-r ${getPlanColor(client.groupName)} text-white`}
+                      className="text-white border-0"
+                      style={{ background: getPlanGradient(client.groupName) }}
                     >
                       {client.groupName}
                     </Badge>
@@ -402,7 +403,7 @@ export default function ClientesPage() {
           {filteredClients.map((client) => (
             <Card key={client.id} className="hover-elevate transition-all h-32">
               <CardContent className="p-0 h-full flex gap-4">
-                <div className={`w-[30%] h-full flex items-center justify-center bg-gradient-to-br ${getPlanColor(client.groupName)} rounded-l-lg`}>
+                <div className="w-[30%] h-full flex items-center justify-center rounded-l-lg" style={{ background: getPlanGradient(client.groupName) }}>
                   <Avatar className="w-[80%] h-[80%] border-2 border-white/20">
                     <AvatarFallback className="bg-transparent text-white text-2xl font-bold">
                       {client.name.split(" ").map((n) => n[0]).join("")}
@@ -420,7 +421,8 @@ export default function ClientesPage() {
                   <div className="flex items-center justify-between">
                     <Badge
                       variant="secondary"
-                      className={`bg-gradient-to-r ${getPlanColor(client.groupName)} text-white text-xs`}
+                      className="text-white text-xs border-0"
+                      style={{ background: getPlanGradient(client.groupName) }}
                     >
                       {client.groupName}
                     </Badge>
