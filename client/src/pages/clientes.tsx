@@ -196,7 +196,7 @@ export default function ClientesPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {plans.map((plan) => (
-                      <SelectItem key={plan.id} value={plan.name.toLowerCase()}>
+                      <SelectItem key={plan.id} value={plan.name}>
                         {plan.name}
                       </SelectItem>
                     ))}

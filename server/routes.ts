@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { storage } from "./storage";
+import { insertPlanSchema } from "@shared/schema";
 import * as si from "systeminformation";
 import { exec } from "child_process";
 import { promisify } from "util";
@@ -62,21 +63,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/plans", async (req, res) => {
     try {
-      const plan = await storage.createPlan(req.body);
+      const validatedData = insertPlanSchema.parse(req.body);
+      const plan = await storage.createPlan(validatedData);
       res.status(201).json(plan);
     } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid plan data", details: error });
+      }
       res.status(500).json({ error: "Failed to create plan" });
     }
   });
 
   app.patch("/api/plans/:id", async (req, res) => {
     try {
-      const plan = await storage.updatePlan(req.params.id, req.body);
+      const validatedData = insertPlanSchema.partial().parse(req.body);
+      const plan = await storage.updatePlan(req.params.id, validatedData);
       if (!plan) {
         return res.status(404).json({ error: "Plan not found" });
       }
       res.json(plan);
     } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid plan data", details: error });
+      }
       res.status(500).json({ error: "Failed to update plan" });
     }
   });
